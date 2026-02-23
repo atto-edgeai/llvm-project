@@ -651,6 +651,14 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
       if (IsStaticPIE)
         crt = "rcrt1.o";
       CmdArgs.push_back(Args.MakeArgString(TC.GetFilePath(crt)));
+
+      // Auto-link vendor IO callbacks if present in the sysroot
+      // (no-op for targets that don't ship atto_libc_io.o).
+      {
+        std::string AttoIO = TC.GetFilePath("atto_libc_io.o");
+        if (AttoIO != "atto_libc_io.o")
+          CmdArgs.push_back(Args.MakeArgString(AttoIO));
+      }
     }
     if (TC.hasValidGCCInstallation() || detectGCCToolchainAdjacent(D)) {
       auto RuntimeLib = TC.GetRuntimeLibType(Args);
@@ -675,6 +683,14 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
   Args.addAllArgs(CmdArgs,
                   {options::OPT_L, options::OPT_u, options::OPT_T_Group,
                    options::OPT_s, options::OPT_t, options::OPT_r});
+
+  // Auto-add default linker script if user didn't specify one and
+  // link.ld is present in the sysroot.
+  if (!Args.hasArg(options::OPT_T_Group)) {
+    std::string DefaultLD = TC.GetFilePath("link.ld");
+    if (DefaultLD != "link.ld")
+      CmdArgs.push_back(Args.MakeArgString(std::string("-T") + DefaultLD));
+  }
 
   TC.AddFilePathLibArgs(Args, CmdArgs);
 
@@ -701,8 +717,10 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
   if (!Args.hasArg(options::OPT_nostdlib, options::OPT_nodefaultlibs)) {
     CmdArgs.push_back("--start-group");
     AddRunTimeLibs(TC, D, CmdArgs, Args);
-    if (!Args.hasArg(options::OPT_nolibc))
+    if (!Args.hasArg(options::OPT_nolibc)) {
       CmdArgs.push_back("-lc");
+      CmdArgs.push_back("-lm");
+    }
     if (TC.hasValidGCCInstallation() || detectGCCToolchainAdjacent(D))
       CmdArgs.push_back("-lgloss");
     CmdArgs.push_back("--end-group");
