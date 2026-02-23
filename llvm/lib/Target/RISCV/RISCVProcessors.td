@@ -777,6 +777,13 @@ def RP2350_HAZARD3 : RISCVProcessorModel<"rp2350-hazard3",
                                           FeatureStdExtZcb,
                                           FeatureStdExtZcmp]>;
 
+def ATTORV32_NANO : RISCVProcessorModel<"attorv32-nano",
+                                         NoSchedModel,
+                                         [Feature32Bit,
+                                          FeatureStdExtE,
+                                          FeatureStdExtC,
+                                          FeatureStdExtZicsr]>;
+
 def ANDES_A25 : RISCVProcessorModel<"andes-a25",
                                     NoSchedModel,
                                     [Feature32Bit,

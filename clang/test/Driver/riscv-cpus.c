@@ -605,6 +605,13 @@
 // MCPU-HAZARD3-SAME: "-target-feature" "+zbs"
 // MCPU-HAZARD3-SAME: "-target-abi" "ilp32"
 
+// RUN: %clang -target riscv32 -### -c %s 2>&1 -mcpu=attorv32-nano | FileCheck -check-prefix=MCPU-ATTORV32-NANO %s
+// MCPU-ATTORV32-NANO: "-target-cpu" "attorv32-nano"
+// MCPU-ATTORV32-NANO-SAME: "-target-feature" "+e"
+// MCPU-ATTORV32-NANO-SAME: "-target-feature" "+c"
+// MCPU-ATTORV32-NANO-SAME: "-target-feature" "+zicsr"
+// MCPU-ATTORV32-NANO-SAME: "-target-abi" "ilp32e"
+
 // Check failed cases
 
 // RUN: not %clang --target=riscv32 -### -c %s 2>&1 -mcpu=generic-rv321 | FileCheck -check-prefix=FAIL-MCPU-NAME %s
