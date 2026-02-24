@@ -27,18 +27,24 @@ namespace internal {
 
 class StreamReader : public scanf_core::Reader<StreamReader> {
   ::FILE *stream;
+  int putback = -1;
 
 public:
   LIBC_INLINE StreamReader(::FILE *stream) : stream(stream) {}
 
   LIBC_INLINE char getc() {
+    if (putback >= 0) {
+      char c = static_cast<char>(putback);
+      putback = -1;
+      return c;
+    }
     char c;
     auto result = __llvm_libc_stdio_read(stream, &c, 1);
     if (result != 1)
       return '\0';
     return c;
   }
-  LIBC_INLINE void ungetc(int) {}
+  LIBC_INLINE void ungetc(int c) { putback = c; }
 };
 
 } // namespace internal
