@@ -782,7 +782,9 @@ def ATTORV32_NANO : RISCVProcessorModel<"attorv32-nano",
                                          [Feature32Bit,
                                           FeatureStdExtE,
                                           FeatureStdExtC,
-                                          FeatureStdExtZicsr]>;
+                                          FeatureStdExtZicsr,
+                                          FeatureStdExtZmmul,
+                                          FeatureStdExtZbb]>;
 
 def ANDES_A25 : RISCVProcessorModel<"andes-a25",
                                     NoSchedModel,
